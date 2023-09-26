@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dov-po
+  namespace: myns
+  labels:
+    app: dov
+    dept: eng
+spec:
+  containers:
+    - name: dov-container
+      image: chukmunnlee/dov-bear:v5
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 3000
+      env:
+        - name: INSTANCE_NAME
+          value: dov-bear
+        - name: INSTANCE_HASH
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+      livenessProbe:
+        httpGet:
+          path: /heathz
+          port: 3000
