@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bggdb-deploy
+  namespace: bggns
+  labels:
+    app: bgg
+    type: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bgg
+      type: db
+  template:
+    metadata:
+      name: bggdb-po
+      labels:
+        app: bgg
+        type: db
+    spec:
+      containers:
+        - name: db-container
+          image: stackupiss/bgg-database:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3306
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3306
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bggdb-svc
+  namespace: bggns
+spec:
+  type: ClusterIP
+  selector:
+    app: bgg
+    type: db
+  ports:
+    - port: 3306
+      targetPort: 3306
